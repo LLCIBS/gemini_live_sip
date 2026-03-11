@@ -1,0 +1,33 @@
+{
+  "name": "gemini-live-sip-agent",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "set NODE_USE_ENV_PROXY=1&& set HTTPS_PROXY=http://localhost:1080&& tsx server/index.ts",
+    "build": "vite build",
+    "preview": "tsx server/index.ts",
+    "server": "tsx server/index.ts"
+  },
+  "dependencies": {
+    "@alexanderolsen/libsamplerate-js": "^2.1.2",
+    "@google/genai": "^1.39.0",
+    "@types/express": "^5.0.6",
+    "@types/ws": "^8.18.1",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "https-proxy-agent": "^7.0.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "recharts": "^3.7.0",
+    "undici": "^7.22.0",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
