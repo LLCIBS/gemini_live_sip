@@ -39,6 +39,17 @@ const TelephonySettings: React.FC<TelephonySettingsProps> = ({ contacts, setCont
     }).catch(() => {});
   }, []);
 
+  // Fetch initial incoming-call checklist selection
+  useEffect(() => {
+    apiGet('/api/incoming/checklist')
+      .then((data) => {
+        if (data.checklistId) {
+          setSelectedChecklistId(data.checklistId);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Subscribe to WebSocket events
   useEffect(() => {
     return wsClient.subscribe((msg: WsMessage) => {
@@ -279,17 +290,39 @@ const TelephonySettings: React.FC<TelephonySettingsProps> = ({ contacts, setCont
                   {callMode === 'outgoing' ? 'ждём Алло' : 'бот первый'}
                 </span>
               </div>
-              <div className="flex gap-2 items-center">
-                <label className="text-xs font-bold text-slate-400 uppercase">Сценарий:</label>
-                <select
-                value={selectedChecklistId}
-                onChange={e => setSelectedChecklistId(e.target.value)}
-                className="text-sm p-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              >
-                {checklists.map(c => (
-                  <option key={c.id} value={c.id}>{c.title}</option>
-                ))}
-              </select>
+              <div className="flex gap-4 items-center flex-wrap">
+                <div className="flex gap-2 items-center">
+                  <label className="text-xs font-bold text-slate-400 uppercase">Сценарий исходящий:</label>
+                  <select
+                    value={selectedChecklistId}
+                    onChange={e => setSelectedChecklistId(e.target.value)}
+                    className="text-sm p-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  >
+                    {checklists.map(c => (
+                      <option key={c.id} value={c.id}>{c.title}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <label className="text-xs font-bold text-slate-400 uppercase">Сценарий входящий:</label>
+                  <select
+                    value={selectedChecklistId}
+                    onChange={async (e) => {
+                      const id = e.target.value;
+                      setSelectedChecklistId(id);
+                      try {
+                        await apiPost('/api/incoming/checklist', { checklistId: id });
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                    className="text-sm p-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  >
+                    {checklists.map(c => (
+                      <option key={c.id} value={c.id}>{c.title}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           </div>

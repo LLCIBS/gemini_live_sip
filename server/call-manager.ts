@@ -84,6 +84,8 @@ export class CallManager extends EventEmitter {
   }>();
   private callHistory: CallLog[] = [];
   private checklists: Checklist[] = [];
+  /** Чек-лист по умолчанию для входящих звонков (если не найден — берём первый). */
+  private incomingDefaultChecklistId?: string;
 
   constructor(sipConfig: SipConfig, geminiApiKey: string) {
     super();
@@ -132,6 +134,11 @@ export class CallManager extends EventEmitter {
 
   setChecklists(checklists: Checklist[]) {
     this.checklists = checklists;
+  }
+
+  /** Установить чек-лист по умолчанию для входящих вызовов. */
+  setIncomingDefaultChecklist(id: string | undefined) {
+    this.incomingDefaultChecklistId = id;
   }
 
   // ─── Lifecycle ─────────────────────────────────────────────────────────────
@@ -251,11 +258,22 @@ export class CallManager extends EventEmitter {
   private async handleIncomingCall(callInfo: SipCallInfo): Promise<void> {
     this.emit('log', 'info', `Incoming call from ${callInfo.targetNumber}`);
 
-    // Use default checklist (first one) for incoming calls
-    const checklist = this.checklists[0];
+    // Выбираем чек-лист по умолчанию для входящих:
+    // 1) если задан incomingDefaultChecklistId — пытаемся найти его;
+    // 2) иначе берём первый из списка;
+    // 3) если чек-листов вообще нет — создаём "тихий" дефолтный сценарий.
+    let checklist =
+      (this.incomingDefaultChecklistId &&
+        this.checklists.find((c) => c.id === this.incomingDefaultChecklistId)) ||
+      this.checklists[0];
     if (!checklist) {
-      this.emit('log', 'error', 'No checklist available for incoming call');
-      return;
+      this.emit('log', 'warn', 'No checklist available for incoming call, using implicit default.');
+      checklist = {
+        id: 'incoming-default',
+        title: 'Incoming default',
+        description: 'Автоматически созданный сценарий для входящих вызовов.',
+        items: [],
+      };
     }
 
     const systemInstruction = this.buildSystemInstruction(checklist, callInfo.targetNumber, 'incoming');

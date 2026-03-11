@@ -191,6 +191,20 @@ app.get('/api/checklists', (_req, res) => {
   res.json({ checklists: (global as any).__checklists || [] });
 });
 
+// Incoming calls: default checklist selection
+app.get('/api/incoming/checklist', (_req, res) => {
+  res.json({ checklistId: (global as any).__incomingChecklistId || null });
+});
+
+app.post('/api/incoming/checklist', (req, res) => {
+  const checklistId: string | undefined = req.body.checklistId || undefined;
+  (global as any).__incomingChecklistId = checklistId;
+  if (callManager) {
+    callManager.setIncomingDefaultChecklist(checklistId);
+  }
+  res.json({ status: 'ok' });
+});
+
 // Call management
 app.post('/api/call/start', async (req, res) => {
   if (!callManager) {
