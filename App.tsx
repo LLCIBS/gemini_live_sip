@@ -85,8 +85,16 @@ const App: React.FC = () => {
           setCurrentView(AppView.RESULTS);
         }
       }
-      // Fallback: contact из callState (входящий звонок или race при исходящем)
+      // Fallback: обновление состояния вызова от сервера (входящий или исходящий)
       if (msg.type === 'callState' && msg.data?.callId && msg.data?.phoneNumber) {
+        // Если сервер сообщает, что вызов завершён — не открываем новое окно
+        if (msg.data.status === 'ended') {
+          if (activeCallId === msg.data.callId) {
+            setActiveCallId(null);
+            setActiveCallContact(null);
+          }
+          return;
+        }
         const placeholderContact: PhoneContact = {
           id: msg.data.callId,
           name: msg.data.customerName || msg.data.phoneNumber,

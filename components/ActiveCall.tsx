@@ -48,10 +48,13 @@ const ActiveCall: React.FC<ActiveCallProps> = ({ callId, contact, checklist, onF
           endedRef.current = true;
           setStatus('ended');
           onFinished(msg.data);
+          // Для входящих вызовов, когда клиент кладёт трубку, автоматически
+          // закрываем окно активного звонка, чтобы не "зависал" полноэкранный оверлей.
+          onClose();
         }
       }
     });
-  }, [callId, onFinished]);
+  }, [callId, onFinished, onClose]);
 
   const stopCall = async () => {
     if (endedRef.current) return;

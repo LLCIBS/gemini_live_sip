@@ -542,6 +542,10 @@ export class CallManager extends EventEmitter {
 
     session.state.status = 'ended';
 
+    // Сообщаем фронтенду финальное состояние вызова (status = 'ended'),
+    // чтобы UI мог корректно закрыть окно активного звонка по callState.
+    this.emit('callStateChanged', { ...session.state });
+
     const log: CallLog = {
       id: callId,
       phoneNumber: session.state.phoneNumber,
