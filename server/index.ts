@@ -246,9 +246,8 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     app.use(express.static(path.join(ROOT_DIR, 'dist')));
-    // Express 5 + path-to-regexp требуют корректного пути, '*' даёт ошибку.
-    // Используем '/*' для SPA-фолбэка.
-    app.get('/*', (_req, res) => {
+    // Express 5 + path-to-regexp: используем параметр с маской вместо '*'
+    app.get('/:path(*)', (_req, res) => {
       res.sendFile(path.join(ROOT_DIR, 'dist', 'index.html'));
     });
   }
