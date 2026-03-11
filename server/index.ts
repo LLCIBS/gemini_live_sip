@@ -246,8 +246,9 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     app.use(express.static(path.join(ROOT_DIR, 'dist')));
-    // Express 5 + path-to-regexp: используем параметр с маской вместо '*'
-    app.get('/:path(*)', (_req, res) => {
+    // Для SPA в Express 5 безопаснее использовать RegExp‑маршрут вместо '*'
+    // Отдаём index.html для всех путей, которые не начинаются с /api
+    app.get(/^(?!\/api\/).*/, (_req, res) => {
       res.sendFile(path.join(ROOT_DIR, 'dist', 'index.html'));
     });
   }
